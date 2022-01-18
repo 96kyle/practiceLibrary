@@ -1,4 +1,4 @@
-import 'package:carousel/model/imageModel.dart';
+import 'package:carousel/store/imageStore.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 
@@ -10,13 +10,11 @@ class Carousel extends StatefulWidget {
 }
 
 class _CarouselState extends State<Carousel> {
-  final List<ImageModel> item = [
-    ImageModel(title: '애니', imageUrl: '1.jpg'),
-    ImageModel(title: '별 + 산', imageUrl: '2.jpg'),
-    ImageModel(title: '하늘', imageUrl: '3.png'),
-    ImageModel(title: '구름', imageUrl: '4.jpg'),
-    ImageModel(title: '캐릭터', imageUrl: '5.png'),
-  ];
+  final item = ImageStore.instance.imageList;
+
+  final CarouselController controller = CarouselController();
+
+  int dotIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -26,38 +24,104 @@ class _CarouselState extends State<Carousel> {
       ),
       body: Container(
         margin: EdgeInsets.only(top: 10),
-        child: CarouselSlider(
-            options: CarouselOptions(
-              aspectRatio: 16 / 9,
-              viewportFraction: 0.8,
-              initialPage: 0,
-              enableInfiniteScroll: true,
-              autoPlay: true,
-              autoPlayInterval: Duration(seconds: 3),
-              autoPlayCurve: Curves.fastOutSlowIn,
-              // enlargeCenterPage: true,
-              onPageChanged: (index, reason) {
-                setState(() {
-                  print('인덱스 : ${index}');
-                  print('타이틀 : ${item[index].title}');
-                });
-              }, //저 reason이 뭐지
+        child: Column(
+          children: [
+            Expanded(
+              flex: 4,
+              child: CarouselSlider(
+                  options: CarouselOptions(
+                    aspectRatio: 1,
+                    viewportFraction: 0.8,
+                    initialPage: 0,
+                    enableInfiniteScroll: true,
+                    // autoPlay: true,
+                    autoPlayInterval: Duration(seconds: 3),
+                    autoPlayCurve: Curves.fastOutSlowIn,
+                    enlargeCenterPage: true,
+                    onPageChanged:
+                        (index, CarouselPageChangedReason changeReason) {
+                      setState(() {
+                        print(controller);
+                        dotIndex = index;
+                      });
+                    }, //저 reason이 뭐지
+                  ),
+                  carouselController: controller,
+                  items: item.map((i) {
+                    return Builder(builder: (BuildContext context) {
+                      return Container(
+                        margin: EdgeInsets.symmetric(
+                          horizontal: 10,
+                        ),
+                        child: Container(
+                          color: Colors.blue,
+                          child: Image.asset(
+                            'assets/${i.imageUrl}',
+                            fit: BoxFit.fill,
+                          ),
+                        ),
+                      );
+                    });
+                  }).toList()),
             ),
-            items: item.map((i) {
-              return Builder(builder: (BuildContext context) {
-                return Container(
-                  margin: EdgeInsets.symmetric(
-                    horizontal: 10,
-                  ),
-                  child: Container(
-                    child: Image.asset(
-                      'assets/${i.imageUrl}',
-                      fit: BoxFit.fill,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ...List.generate(item.length, (index) {
+                  return Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 5,
+                      vertical: 5,
                     ),
-                  ),
-                );
-              });
-            }).toList()),
+                    child: dotIndex == index
+                        ? Icon(Icons.circle)
+                        : Icon(Icons.circle_outlined),
+                  );
+                })
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                TextButton(
+                  onPressed: () => controller.previousPage(),
+                  child: Text('이전페이지'),
+                ),
+                TextButton(
+                  onPressed: () => controller.nextPage(),
+                  child: Text('다음페이지'),
+                ),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ...List.generate(
+                  item.length,
+                  (index) {
+                    return InkWell(
+                      onTap: () {
+                        controller.animateToPage(index);
+                      },
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 10,
+                        ),
+                        // alignment: Alignment.center,
+                        child: Text(
+                          '${index + 1}',
+                          style: TextStyle(
+                            fontSize: 25,
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                )
+              ],
+            )
+          ],
+        ),
       ),
     );
   }
