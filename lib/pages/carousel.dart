@@ -27,21 +27,19 @@ class _CarouselState extends State<Carousel> {
         child: Column(
           children: [
             Expanded(
-              flex: 4,
               child: CarouselSlider(
                   options: CarouselOptions(
                     aspectRatio: 1,
                     viewportFraction: 0.8,
-                    initialPage: 0,
+                    initialPage: dotIndex,
                     enableInfiniteScroll: true,
-                    // autoPlay: true,
+                    autoPlay: true,
                     autoPlayInterval: Duration(seconds: 3),
                     autoPlayCurve: Curves.fastOutSlowIn,
                     enlargeCenterPage: true,
                     onPageChanged:
                         (index, CarouselPageChangedReason changeReason) {
                       setState(() {
-                        print(controller);
                         dotIndex = index;
                       });
                     }, //저 reason이 뭐지
@@ -57,7 +55,7 @@ class _CarouselState extends State<Carousel> {
                           color: Colors.blue,
                           child: Image.asset(
                             'assets/${i.imageUrl}',
-                            fit: BoxFit.fill,
+                            fit: BoxFit.cover,
                           ),
                         ),
                       );
@@ -77,7 +75,7 @@ class _CarouselState extends State<Carousel> {
                         ? Icon(Icons.circle)
                         : Icon(Icons.circle_outlined),
                   );
-                })
+                }),
               ],
             ),
             Row(
@@ -117,9 +115,9 @@ class _CarouselState extends State<Carousel> {
                       ),
                     );
                   },
-                )
+                ),
               ],
-            )
+            ),
           ],
         ),
       ),
