@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:kakaomap_webview/kakaomap_webview.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 class KakaoMapTest extends StatefulWidget {
   // final double lat;
@@ -17,15 +18,18 @@ class KakaoMapTest extends StatefulWidget {
 }
 
 class _KakaoMapTestState extends State<KakaoMapTest> {
-  final double lat = 33.450701;
-  final double lng = 126.570667;
+  Position? position;
+
+  WebViewController? _controller;
 
   @override
   void initState() {
     super.initState();
+
+    getLocation();
   }
 
-  Future<Position> getLocation() async {
+  Future getLocation() async {
     bool serviceEnabled;
     LocationPermission permission;
 
@@ -47,10 +51,10 @@ class _KakaoMapTestState extends State<KakaoMapTest> {
           'Location permissions are permanently denied, we cannot request permissions.');
     }
 
-    Position position = await Geolocator.getCurrentPosition(
+    position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
 
-    return position;
+    setState(() {});
   }
 
   @override
@@ -59,31 +63,45 @@ class _KakaoMapTestState extends State<KakaoMapTest> {
       appBar: AppBar(
         title: Text('KAKAO MAP'),
       ),
-      body: Container(
-        child: Container(
-          alignment: Alignment.center,
-          child: FutureBuilder(
-              future: getLocation(),
-              builder: (BuildContext context, AsyncSnapshot snapshot) {
-                if (snapshot.hasData == false) {
-                  return Text('잠시만요');
-                } else {
-                  return KakaoMapView(
-                      width: 400,
-                      height: 400,
-                      kakaoMapKey: 'b2be67d07577e01b5562ae029e819c6a',
-                      lat: snapshot.data.latitude,
-                      lng: snapshot.data.longitude,
-                      zoomLevel: 5,
-                      showMapTypeControl: true,
-                      showZoomControl: true,
-                      overlayText: '왜 여기지?',
-                      markerImageURL:
-                          'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_red.png',
-                      onTapMarker: (message) {});
-                }
-              }),
-        ),
+      body: Column(
+        children: [
+          Expanded(
+            child: Container(
+              alignment: Alignment.center,
+              child: position == null
+                  ? CircularProgressIndicator()
+                  : LayoutBuilder(
+                      builder: (context, constraints) => KakaoMapView(
+                        mapController: (controller) {
+                          controller.reload();
+                        },
+                        width: constraints.maxWidth,
+                        height: constraints.maxHeight,
+                        kakaoMapKey: 'b2be67d07577e01b5562ae029e819c6a',
+                        lat: position!.latitude,
+                        lng: position!.longitude,
+                        zoomLevel: 5,
+                        showMapTypeControl: true,
+                        showZoomControl: true,
+                        overlayText: '왜 여기지?',
+                        markerImageURL:
+                            'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_red.png',
+                        onTapMarker: (message) {},
+                      ),
+                    ),
+            ),
+          ),
+          TextButton(
+            onPressed: () async {
+              position = null;
+
+              setState(() {});
+              await getLocation();
+              setState(() {});
+            },
+            child: Text("refresh"),
+          ),
+        ],
       ),
     );
   }

@@ -51,6 +51,7 @@ dependencies:
 
   geolocator: ^8.0.3
   geocoding: ^2.0.2
+  webview_flutter: ^2.8.0
   
   
 
