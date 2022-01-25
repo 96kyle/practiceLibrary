@@ -60,6 +60,10 @@ dependencies:
   
   permission_handler: ^8.3.0
   
+  image_gallery_saver: ^1.7.1
+  
+  intl: ^0.17.0
+  
   
 
 dev_dependencies:
