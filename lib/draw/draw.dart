@@ -18,6 +18,11 @@ class _DrawState extends State<Draw> {
   List<DrawingArea?> position = [];
 
   Color pickerColor = Colors.black;
+  Color currentColor = Colors.black;
+
+  double defaultWidth = 2;
+
+  bool eraserMode = false;
 
   @override
   Widget build(BuildContext context) {
@@ -32,48 +37,32 @@ class _DrawState extends State<Draw> {
             position = [];
           });
         },
-        child: Container(
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: Colors.white,
-          ),
-          child: Icon(
-            Icons.remove,
-            color: Colors.red,
-            size: 40,
-          ),
+        child: Icon(
+          Icons.cancel,
+          color: Colors.red,
+          size: 60,
         ),
       ),
       body: Container(
         alignment: Alignment.center,
         child: Column(
           children: [
-            Container(
-              margin: EdgeInsets.symmetric(
-                vertical: 20,
-              ),
-              width: 400,
-              height: 550,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.all(
-                  Radius.circular(10),
+            LayoutBuilder(builder: (context, constraint) {
+              return Container(
+                margin: EdgeInsets.symmetric(
+                  vertical: 20,
+                  horizontal: 20,
                 ),
-              ),
-              child: GestureDetector(
-                onPanDown: (details) {
-                  setState(() {
-                    position.add(DrawingArea(
-                        position: details.localPosition,
-                        areaPaint: Paint()
-                          ..strokeCap = StrokeCap.round
-                          ..isAntiAlias = true
-                          ..color = pickerColor
-                          ..strokeWidth = 2.0));
-                  });
-                },
-                onPanUpdate: (details) {
-                  setState(() {
+                width: constraint.maxWidth,
+                height: 500,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(10),
+                  ),
+                ),
+                child: GestureDetector(
+                  onPanDown: (details) {
                     setState(() {
                       position.add(DrawingArea(
                           position: details.localPosition,
@@ -81,53 +70,158 @@ class _DrawState extends State<Draw> {
                             ..strokeCap = StrokeCap.round
                             ..isAntiAlias = true
                             ..color = pickerColor
-                            ..strokeWidth = 2.0));
+                            ..strokeWidth = defaultWidth));
                     });
-                  });
-                },
-                onPanEnd: (details) {
-                  setState(() {
-                    position.add(null);
-                  });
-                },
-                child: ClipRRect(
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(10),
-                  ),
-                  child: CustomPaint(
-                    painter:
-                        MyCustomPainter(position: position, color: pickerColor),
+                  },
+                  onPanUpdate: (details) {
+                    setState(() {
+                      setState(() {
+                        position.add(DrawingArea(
+                            position: details.localPosition,
+                            areaPaint: Paint()
+                              ..strokeCap = StrokeCap.round
+                              ..isAntiAlias = true
+                              ..color = pickerColor
+                              ..strokeWidth = defaultWidth));
+                      });
+                    });
+                  },
+                  onPanEnd: (details) {
+                    setState(() {
+                      position.add(null);
+                    });
+                  },
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(10),
+                    ),
+                    child: CustomPaint(
+                      painter: MyCustomPainter(
+                          position: position, color: pickerColor),
+                    ),
                   ),
                 ),
+              );
+            }),
+            Container(
+              margin: EdgeInsets.symmetric(
+                horizontal: 30,
+              ),
+              padding: EdgeInsets.symmetric(
+                horizontal: 20,
+              ),
+              decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(30),
+                  )),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: InkWell(
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) => Dialog(
+                            child:
+                                LayoutBuilder(builder: (context, constraint) {
+                              return Container(
+                                width: constraint.maxWidth,
+                                height: constraint.maxHeight * 0.7,
+                                margin: EdgeInsets.only(top: 30),
+                                child: ColorPicker(
+                                  pickerColor: pickerColor,
+                                  onColorChanged: changeColor,
+                                ),
+                              );
+                            }),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        child: Icon(
+                          Icons.palette,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                  ),
+                  RotationTransition(
+                    turns: new AlwaysStoppedAnimation(315 / 360),
+                    child: InkWell(
+                      onTap: () {
+                        setState(() {
+                          currentColor = pickerColor;
+                          pickerColor = Colors.white;
+                          eraserMode = true;
+                        });
+                      },
+                      child: Container(
+                        width: 24,
+                        height: 15,
+                        decoration: BoxDecoration(
+                          color: eraserMode ? Colors.blue : Colors.black,
+                        ),
+                        child: Container(
+                          alignment: Alignment.centerLeft,
+                          margin: EdgeInsets.fromLTRB(9, 0, 13, 0),
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: InkWell(
+                      onTap: () {
+                        setState(() {
+                          eraserMode = false;
+                          pickerColor = currentColor;
+                        });
+                      },
+                      child: Container(
+                        child: Icon(
+                          Icons.edit_sharp,
+                          color: eraserMode ? Colors.black : Colors.blue,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    flex: 5,
+                    child: Slider(
+                      value: defaultWidth,
+                      min: 0.0,
+                      max: 20.0,
+                      label: '${defaultWidth.round()}',
+                      onChanged: (double newValue) {
+                        setState(
+                          () {
+                            defaultWidth = newValue;
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ],
               ),
             ),
-            TextButton(
-              onPressed: () async {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) => Dialog(
-                    child: LayoutBuilder(builder: (context, constraint) {
-                      return Container(
-                        width: constraint.maxWidth,
-                        height: constraint.maxHeight * 0.7,
-                        margin: EdgeInsets.only(top: 30),
-                        child: ColorPicker(
-                          pickerColor: pickerColor,
-                          onColorChanged: changeColor,
-                        ),
-                      );
-                    }),
-                  ),
-                );
-                print(pickerColor);
-              },
-              child: Text('색상선택'),
-            ),
-            TextButton(
-              onPressed: () async {
-                saveImage();
-              },
-              child: Text('save'),
+            Container(
+              margin: EdgeInsets.only(top: 20),
+              padding: EdgeInsets.symmetric(
+                vertical: 5,
+                horizontal: 20,
+              ),
+              decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(10),
+                  )),
+              child: TextButton(
+                onPressed: () async {
+                  saveImage();
+                },
+                child: Text('save'),
+              ),
             ),
           ],
         ),
@@ -155,14 +249,20 @@ class _DrawState extends State<Draw> {
     ui.Image image = await recorde;
     final ByteData? data =
         await image.toByteData(format: ui.ImageByteFormat.png);
-    print(data!.buffer.asUint8List());
     Directory tempDir = await getApplicationDocumentsDirectory();
     String tempPath = tempDir.path;
-    var filePath = tempPath + '/${DateTime.now().toString()}.png';
 
-    File(filePath).writeAsBytesSync(data.buffer.asUint8List());
+    var filePath = tempPath + '${DateTime.now().toString()}.png';
+    // var filePath =
+    //     '/storage/emulated/0/Download/${DateTime.now().toString()}.png';
+    var file = File(filePath);
 
-    return File(filePath);
+    print(filePath);
+
+    file.writeAsBytesSync(data!.buffer.asInt8List());
+    // file.writeAsStringSync("asdf");
+
+    return file;
   }
 }
 
@@ -170,7 +270,10 @@ class MyCustomPainter extends CustomPainter {
   List<DrawingArea?> position;
   Color color;
 
-  MyCustomPainter({required this.position, required this.color});
+  MyCustomPainter({
+    required this.position,
+    required this.color,
+  });
 
   @override
   void paint(Canvas canvas, Size size) async {
