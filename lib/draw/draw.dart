@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class Draw extends StatefulWidget {
   const Draw({Key? key}) : super(key: key);
@@ -245,24 +246,27 @@ class _DrawState extends State<Draw> {
     return recorder.endRecording().toImage(400, 550);
   }
 
-  Future<File> saveImage() async {
-    ui.Image image = await recorde;
-    final ByteData? data =
-        await image.toByteData(format: ui.ImageByteFormat.png);
-    Directory tempDir = await getApplicationDocumentsDirectory();
-    String tempPath = tempDir.path;
+  Future<bool> saveImage() async {
+    if (await Permission.storage.request().isGranted) {
+      ui.Image image = await recorde;
+      final ByteData? data =
+          await image.toByteData(format: ui.ImageByteFormat.png);
+      // Directory tempDir = await getApplicationDocumentsDirectory();
+      // String tempPath = tempDir.path;
+      // var filePath = tempPath + '${DateTime.now().toString()}.png';
+      var filePath =
+          '/storage/emulated/0/Download/${DateTime.now().toString()}.png';
+      var file = File(filePath);
 
-    var filePath = tempPath + '${DateTime.now().toString()}.png';
-    // var filePath =
-    //     '/storage/emulated/0/Download/${DateTime.now().toString()}.png';
-    var file = File(filePath);
+      print(filePath);
 
-    print(filePath);
+      file.writeAsBytesSync(data!.buffer.asInt8List());
+      // file.writeAsStringSync("asdf");
 
-    file.writeAsBytesSync(data!.buffer.asInt8List());
-    // file.writeAsStringSync("asdf");
-
-    return file;
+      return true;
+    } else {
+      return false;
+    }
   }
 }
 
