@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'dart:math' as math;
 import 'package:animated_text_kit/animated_text_kit.dart';
 
-class Test1 extends StatefulWidget {
-  const Test1({Key? key}) : super(key: key);
+class SplashTest extends StatefulWidget {
+  const SplashTest({Key? key}) : super(key: key);
 
   @override
-  _Test1State createState() => _Test1State();
+  _SplashTestState createState() => _SplashTestState();
 }
 
-class _Test1State extends State<Test1> with TickerProviderStateMixin {
+class _SplashTestState extends State<SplashTest> with TickerProviderStateMixin {
   int count = 0;
   String? title;
 

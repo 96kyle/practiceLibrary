@@ -9,7 +9,7 @@ abstract class Client {
   factory Client() => _Client(
         Dio(
           BaseOptions(
-            baseUrl: 'http://192.168.0.140:5000/api',
+            baseUrl: 'http://192.168.50.140/api',
           ),
         ),
       );

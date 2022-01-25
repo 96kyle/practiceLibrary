@@ -1,10 +1,4 @@
-import 'package:carousel/draw/draw.dart';
 import 'package:carousel/pages/carousel.dart';
-import 'package:carousel/pages/kakaoMapTest.dart';
-import 'package:carousel/pages/loading.dart';
-import 'package:carousel/pages/mapLoading.dart';
-import 'package:carousel/pages/multipleItemDemo.dart';
-import 'package:carousel/tes/test1.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -19,7 +13,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Carousel',
-      home: Draw(),
+      home: Carousel(),
     );
   }
 }

@@ -2,14 +2,12 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'dart:async';
-import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:intl/intl.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class Draw extends StatefulWidget {
@@ -55,7 +53,7 @@ class _DrawState extends State<Draw> {
             LayoutBuilder(builder: (context, constraint) {
               return Container(
                 margin: EdgeInsets.symmetric(
-                  vertical: 20,
+                  vertical: 30,
                   horizontal: 20,
                 ),
                 width: constraint.maxWidth,
@@ -70,25 +68,25 @@ class _DrawState extends State<Draw> {
                   onPanDown: (details) {
                     setState(() {
                       position.add(DrawingArea(
-                          position: details.localPosition,
-                          areaPaint: Paint()
-                            ..strokeCap = StrokeCap.round
-                            ..isAntiAlias = true
-                            ..color = pickerColor
-                            ..strokeWidth = defaultWidth));
+                        position: details.localPosition,
+                        areaPaint: Paint()
+                          ..strokeCap = StrokeCap.round
+                          ..isAntiAlias = true
+                          ..color = pickerColor
+                          ..strokeWidth = defaultWidth,
+                      ));
                     });
                   },
                   onPanUpdate: (details) {
                     setState(() {
-                      setState(() {
-                        position.add(DrawingArea(
-                            position: details.localPosition,
-                            areaPaint: Paint()
-                              ..strokeCap = StrokeCap.round
-                              ..isAntiAlias = true
-                              ..color = pickerColor
-                              ..strokeWidth = defaultWidth));
-                      });
+                      position.add(DrawingArea(
+                        position: details.localPosition,
+                        areaPaint: Paint()
+                          ..strokeCap = StrokeCap.round
+                          ..isAntiAlias = true
+                          ..color = pickerColor
+                          ..strokeWidth = defaultWidth,
+                      ));
                     });
                   },
                   onPanEnd: (details) {
@@ -102,7 +100,9 @@ class _DrawState extends State<Draw> {
                     ),
                     child: CustomPaint(
                       painter: MyCustomPainter(
-                          position: position, color: pickerColor),
+                        position: position,
+                        color: pickerColor,
+                      ),
                     ),
                   ),
                 ),
@@ -116,10 +116,11 @@ class _DrawState extends State<Draw> {
                 horizontal: 20,
               ),
               decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(30),
-                  )),
+                color: Colors.white,
+                borderRadius: BorderRadius.all(
+                  Radius.circular(30),
+                ),
+              ),
               child: Row(
                 children: [
                   Expanded(
@@ -197,7 +198,7 @@ class _DrawState extends State<Draw> {
                       value: defaultWidth,
                       min: 0.0,
                       max: 20.0,
-                      label: '${defaultWidth.round()}',
+                      label: defaultWidth.round().toString(),
                       onChanged: (double newValue) {
                         setState(
                           () {
@@ -217,15 +218,23 @@ class _DrawState extends State<Draw> {
                 horizontal: 20,
               ),
               decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(10),
-                  )),
+                color: Colors.white,
+                borderRadius: BorderRadius.all(
+                  Radius.circular(10),
+                ),
+              ),
               child: TextButton(
                 onPressed: () async {
                   saveImage();
                 },
-                child: Text('save'),
+                child: Text(
+                  'save',
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontSize: 25,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ),
             ),
           ],
@@ -243,8 +252,10 @@ class _DrawState extends State<Draw> {
   Future<dynamic> get recorde {
     ui.PictureRecorder recorder = ui.PictureRecorder();
     Canvas canvas = Canvas(recorder);
-    MyCustomPainter painter =
-        MyCustomPainter(position: position, color: pickerColor);
+    MyCustomPainter painter = MyCustomPainter(
+      position: position,
+      color: pickerColor,
+    );
     Size size = Size(400, 550);
     painter.paint(canvas, size);
     return recorder.endRecording().toImage(400, 550);
@@ -255,13 +266,6 @@ class _DrawState extends State<Draw> {
       ui.Image image = await recorde;
       final ByteData? data =
           await image.toByteData(format: ui.ImageByteFormat.png);
-      // Directory tempDir = await getApplicationDocumentsDirectory();
-      // String tempPath = tempDir.path;
-      // var filePath = tempPath + 'dpdl.png';
-      // var filePath = '/storage/emulated/0/Download/tjfak.png';
-      // var file = File(filePath);
-
-      // print(filePath);
 
       final result = await ImageGallerySaver.saveImage(
           Uint8List.fromList(data!.buffer.asUint8List()),
@@ -273,6 +277,14 @@ class _DrawState extends State<Draw> {
       setState(() {
         position = [];
       });
+
+      // Directory tempDir = await getApplicationDocumentsDirectory();
+      // String tempPath = tempDir.path;
+      // var filePath = tempPath + 'dpdl.png'; //pathProvider로 받아오는 방법 갤러리에 저장 안되고 이미지 파일 안열림
+      // var filePath = '/storage/emulated/0/Download/tjfak.png'; // 고정경로 박아놓는 방법 이미지파일은 열리는데 갤러리에 저장안됨
+      // var file = File(filePath);
+
+      // print(filePath);
 
       // file.writeAsBytesSync(data!.buffer.asInt8List());
       // file.writeAsStringSync("asdf");
@@ -297,16 +309,24 @@ class MyCustomPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) async {
     Paint background = Paint()..color = Colors.white;
     Rect rect = Rect.fromLTWH(0, 0, size.width, size.height);
+
     canvas.drawRect(rect, background);
 
     for (int i = 0; i < position.length - 1; i++) {
       if (position[i] != null && position[i + 1] != null) {
         Paint paint = position[i]!.areaPaint;
         canvas.drawLine(
-            position[i]!.position, position[i + 1]!.position, paint);
+          position[i]!.position,
+          position[i + 1]!.position,
+          paint,
+        );
       } else if (position[i] != null && position[i + 1] == null) {
         Paint paint = position[i]!.areaPaint;
-        canvas.drawPoints(ui.PointMode.points, [position[i]!.position], paint);
+        canvas.drawPoints(
+          ui.PointMode.points,
+          [position[i]!.position],
+          paint,
+        );
       }
     }
   }

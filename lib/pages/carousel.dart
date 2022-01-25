@@ -1,3 +1,4 @@
+import 'package:carousel/model/imageModel.dart';
 import 'package:carousel/store/imageStore.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
@@ -10,7 +11,13 @@ class Carousel extends StatefulWidget {
 }
 
 class _CarouselState extends State<Carousel> {
-  final item = ImageStore.instance.imageList;
+  List<ImageModel> item = [
+    ImageModel(id: 1, title: "애니", imageUrl: "1.jpg"),
+    ImageModel(id: 2, title: "별 + 산", imageUrl: "2.jpg"),
+    ImageModel(id: 3, title: "하늘", imageUrl: "3.png"),
+    ImageModel(id: 4, title: "구름", imageUrl: "4.jpg"),
+    ImageModel(id: 5, title: "캐릭터", imageUrl: "5.png"),
+  ];
 
   final CarouselController controller = CarouselController();
 
@@ -91,32 +98,36 @@ class _CarouselState extends State<Carousel> {
                 ),
               ],
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ...List.generate(
-                  item.length,
-                  (index) {
-                    return InkWell(
-                      onTap: () {
-                        controller.animateToPage(index);
-                      },
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 10,
-                        ),
-                        // alignment: Alignment.center,
-                        child: Text(
-                          '${index + 1}',
-                          style: TextStyle(
-                            fontSize: 25,
+            Container(
+              margin: EdgeInsets.only(
+                bottom: 20,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ...List.generate(
+                    item.length,
+                    (index) {
+                      return InkWell(
+                        onTap: () {
+                          controller.animateToPage(index);
+                        },
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 10,
+                          ),
+                          child: Text(
+                            '${index + 1}',
+                            style: TextStyle(
+                              fontSize: 25,
+                            ),
                           ),
                         ),
-                      ),
-                    );
-                  },
-                ),
-              ],
+                      );
+                    },
+                  ),
+                ],
+              ),
             ),
           ],
         ),

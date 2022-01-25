@@ -1,16 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:kakaomap_webview/kakaomap_webview.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 
 class KakaoMapTest extends StatefulWidget {
-  // final double lat;
-  // final double lng;
-
   const KakaoMapTest({
     Key? key,
-    // required this.lat,
-    // required this.lng,
   }) : super(key: key);
 
   @override
@@ -19,8 +13,6 @@ class KakaoMapTest extends StatefulWidget {
 
 class _KakaoMapTestState extends State<KakaoMapTest> {
   Position? position;
-
-  WebViewController? _controller;
 
   @override
   void initState() {
@@ -97,7 +89,6 @@ class _KakaoMapTestState extends State<KakaoMapTest> {
 
               setState(() {});
               await getLocation();
-              setState(() {});
             },
             child: Text("refresh"),
           ),
