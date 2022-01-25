@@ -47,16 +47,16 @@ dependencies:
   
   kakaomap_webview: ^0.3.0
   
-  location: ^4.2.0
-
   geolocator: ^8.0.3
   geocoding: ^2.0.2
   
   webview_flutter: ^2.8.0
+
   animated_text_kit: ^4.2.1
   
   path_provider: ^2.0.8
-  gallery_saver: ^2.3.2
+
+  flutter_colorpicker: ^1.0.3
   
   
 

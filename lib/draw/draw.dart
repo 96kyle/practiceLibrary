@@ -4,6 +4,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:path_provider/path_provider.dart';
 
 class Draw extends StatefulWidget {
@@ -14,7 +15,9 @@ class Draw extends StatefulWidget {
 }
 
 class _DrawState extends State<Draw> {
-  List<Offset?> position = [];
+  List<DrawingArea?> position = [];
+
+  Color pickerColor = Colors.black;
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +53,7 @@ class _DrawState extends State<Draw> {
                 vertical: 20,
               ),
               width: 400,
-              height: 600,
+              height: 550,
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.all(
@@ -60,12 +63,26 @@ class _DrawState extends State<Draw> {
               child: GestureDetector(
                 onPanDown: (details) {
                   setState(() {
-                    position.add(details.localPosition);
+                    position.add(DrawingArea(
+                        position: details.localPosition,
+                        areaPaint: Paint()
+                          ..strokeCap = StrokeCap.round
+                          ..isAntiAlias = true
+                          ..color = pickerColor
+                          ..strokeWidth = 2.0));
                   });
                 },
                 onPanUpdate: (details) {
                   setState(() {
-                    position.add(details.localPosition);
+                    setState(() {
+                      position.add(DrawingArea(
+                          position: details.localPosition,
+                          areaPaint: Paint()
+                            ..strokeCap = StrokeCap.round
+                            ..isAntiAlias = true
+                            ..color = pickerColor
+                            ..strokeWidth = 2.0));
+                    });
                   });
                 },
                 onPanEnd: (details) {
@@ -78,10 +95,33 @@ class _DrawState extends State<Draw> {
                     Radius.circular(10),
                   ),
                   child: CustomPaint(
-                    painter: MyCustomPainter(position: position),
+                    painter:
+                        MyCustomPainter(position: position, color: pickerColor),
                   ),
                 ),
               ),
+            ),
+            TextButton(
+              onPressed: () async {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) => Dialog(
+                    child: LayoutBuilder(builder: (context, constraint) {
+                      return Container(
+                        width: constraint.maxWidth,
+                        height: constraint.maxHeight * 0.7,
+                        margin: EdgeInsets.only(top: 30),
+                        child: ColorPicker(
+                          pickerColor: pickerColor,
+                          onColorChanged: changeColor,
+                        ),
+                      );
+                    }),
+                  ),
+                );
+                print(pickerColor);
+              },
+              child: Text('색상선택'),
             ),
             TextButton(
               onPressed: () async {
@@ -95,17 +135,23 @@ class _DrawState extends State<Draw> {
     );
   }
 
+  void changeColor(Color color) {
+    setState(() {
+      pickerColor = color;
+    });
+  }
+
   Future<dynamic> get recorde {
     ui.PictureRecorder recorder = ui.PictureRecorder();
     Canvas canvas = Canvas(recorder);
-    MyCustomPainter painter = MyCustomPainter(position: position);
-    Size size = Size(400, 600);
+    MyCustomPainter painter =
+        MyCustomPainter(position: position, color: pickerColor);
+    Size size = Size(400, 550);
     painter.paint(canvas, size);
-    return recorder.endRecording().toImage(400, 600);
+    return recorder.endRecording().toImage(400, 550);
   }
 
   Future<File> saveImage() async {
-    print(await recorde);
     ui.Image image = await recorde;
     final ByteData? data =
         await image.toByteData(format: ui.ImageByteFormat.png);
@@ -113,18 +159,18 @@ class _DrawState extends State<Draw> {
     Directory tempDir = await getApplicationDocumentsDirectory();
     String tempPath = tempDir.path;
     var filePath = tempPath + '/${DateTime.now().toString()}.png';
-    File(filePath).writeAsBytesSync(data.buffer.asUint8List());
 
-    print(filePath);
+    File(filePath).writeAsBytesSync(data.buffer.asUint8List());
 
     return File(filePath);
   }
 }
 
 class MyCustomPainter extends CustomPainter {
-  List<Offset?> position;
+  List<DrawingArea?> position;
+  Color color;
 
-  MyCustomPainter({required this.position});
+  MyCustomPainter({required this.position, required this.color});
 
   @override
   void paint(Canvas canvas, Size size) async {
@@ -132,18 +178,14 @@ class MyCustomPainter extends CustomPainter {
     Rect rect = Rect.fromLTWH(0, 0, size.width, size.height);
     canvas.drawRect(rect, background);
 
-    Paint paint = Paint();
-    paint.color = Colors.red;
-    paint.style = PaintingStyle.fill;
-    paint.strokeWidth = 2.0;
-    paint.isAntiAlias = true;
-    paint.strokeCap = StrokeCap.round;
-
     for (int i = 0; i < position.length - 1; i++) {
       if (position[i] != null && position[i + 1] != null) {
-        canvas.drawLine(position[i]!, position[i + 1]!, paint);
+        Paint paint = position[i]!.areaPaint;
+        canvas.drawLine(
+            position[i]!.position, position[i + 1]!.position, paint);
       } else if (position[i] != null && position[i + 1] == null) {
-        canvas.drawPoints(ui.PointMode.points, [position[i]!], paint);
+        Paint paint = position[i]!.areaPaint;
+        canvas.drawPoints(ui.PointMode.points, [position[i]!.position], paint);
       }
     }
   }
@@ -152,4 +194,14 @@ class MyCustomPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) {
     return true;
   }
+}
+
+class DrawingArea {
+  Offset position;
+  Paint areaPaint;
+
+  DrawingArea({
+    required this.position,
+    required this.areaPaint,
+  });
 }
