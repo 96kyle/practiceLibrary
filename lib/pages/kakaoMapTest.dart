@@ -75,7 +75,7 @@ class _KakaoMapTestState extends State<KakaoMapTest> {
                         zoomLevel: 5,
                         showMapTypeControl: true,
                         showZoomControl: true,
-                        overlayText: '왜 여기지?',
+                        overlayText: 'My Home',
                         markerImageURL:
                             'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_red.png',
                         onTapMarker: (message) {},

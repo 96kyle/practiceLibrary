@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'dart:async';
@@ -194,18 +193,31 @@ class _DrawState extends State<Draw> {
                   ),
                   Expanded(
                     flex: 5,
-                    child: Slider(
-                      value: defaultWidth,
-                      min: 0.0,
-                      max: 20.0,
-                      label: defaultWidth.round().toString(),
-                      onChanged: (double newValue) {
-                        setState(
-                          () {
-                            defaultWidth = newValue;
-                          },
-                        );
-                      },
+                    child: SliderTheme(
+                      data: SliderThemeData(
+                        trackHeight: 18,
+                        thumbShape:
+                            RoundSliderThumbShape(enabledThumbRadius: 10),
+                        activeTickMarkColor: Colors.transparent,
+                        inactiveTickMarkColor: Colors.transparent,
+                        activeTrackColor: Colors.grey[300],
+                        inactiveTrackColor: Colors.grey[300],
+                      ),
+                      child: Slider(
+                        value: defaultWidth,
+                        min: 0.0,
+                        max: 20.0,
+                        divisions: 20,
+                        label: defaultWidth.round().toString(),
+                        thumbColor: Colors.black,
+                        onChanged: (double newValue) {
+                          setState(
+                            () {
+                              defaultWidth = newValue;
+                            },
+                          );
+                        },
+                      ),
                     ),
                   ),
                 ],
