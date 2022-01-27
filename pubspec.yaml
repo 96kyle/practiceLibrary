@@ -64,6 +64,11 @@ dependencies:
   
   intl: ^0.17.0
   
+  firebase_messaging: ^11.2.5
+  firebase_core: ^1.11.0
+  
+  flutter_local_notifications: ^9.2.0
+  
   
 
 dev_dependencies:

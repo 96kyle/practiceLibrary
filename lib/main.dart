@@ -1,6 +1,6 @@
-import 'package:carousel/draw/draw.dart';
-import 'package:carousel/pages/carousel.dart';
-import 'package:carousel/pages/kakaoMapTest.dart';
+import 'package:carousel/filebaseNotification/firebaseNotification.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -15,7 +15,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Carousel',
-      home: KakaoMapTest(),
+      home: FirebaseNotification(),
     );
   }
 }
