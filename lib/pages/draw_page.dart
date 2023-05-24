@@ -9,14 +9,14 @@ import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-class Draw extends StatefulWidget {
-  const Draw({Key? key}) : super(key: key);
+class DrawPage extends StatefulWidget {
+  const DrawPage({Key? key}) : super(key: key);
 
   @override
-  _DrawState createState() => _DrawState();
+  _DrawPageState createState() => _DrawPageState();
 }
 
-class _DrawState extends State<Draw> {
+class _DrawPageState extends State<DrawPage> {
   List<DrawingArea?> position = [];
 
   Color pickerColor = Colors.black;
