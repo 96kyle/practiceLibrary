@@ -1,3 +1,4 @@
+import 'package:carousel/pages/datepicker/date_picker_page.dart';
 import 'package:carousel/pages/flip_card_page.dart';
 import 'package:carousel/pages/indicator_page.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +15,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Carousel',
-      home: IndicatorPage(),
+      home: DatePickerPage(),
     );
   }
 }
