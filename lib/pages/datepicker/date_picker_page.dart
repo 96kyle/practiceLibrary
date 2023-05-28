@@ -1,3 +1,4 @@
+import 'package:carousel/pages/datepicker/date_picker_widget.dart';
 import 'package:carousel/pages/datepicker/date_picker_widget_temp.dart';
 import 'package:flutter/material.dart';
 
@@ -9,16 +10,6 @@ class DatePickerPage extends StatefulWidget {
 }
 
 class _DatePickerPageState extends State<DatePickerPage> {
-  List<DateTime> selectedList = [];
-  void Function(DateTime value)? selectDate(value) {
-    if (selectedList.indexOf(value) == -1) {
-      selectedList.add(value);
-    } else {
-      selectedList.remove(value);
-    }
-    setState(() {});
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,16 +20,18 @@ class _DatePickerPageState extends State<DatePickerPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            DatePickerWidgetTemp(
-              selectDate: (DateTime value) => selectDate(value),
-              selectedList: [],
-            ),
-            ...List.generate(
-              selectedList.length,
-              (index) => Text(
-                selectedList[index].toString(),
-              ),
-            ),
+            ElevatedButton(
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => Dialog(
+                      child: DatePickerWidgetTemp(
+                        returnDateType: ReturnDateType.range,
+                      ),
+                    ),
+                  );
+                },
+                child: Text('click me')),
           ],
         ),
       ),
