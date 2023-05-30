@@ -1,4 +1,5 @@
 import 'package:carousel/pages/datepicker/date_formatter.dart';
+import 'package:carousel/pages/datepicker/date_picker.dart';
 import 'package:flutter/material.dart';
 
 class DatePickerWidget extends StatefulWidget {
@@ -81,5 +82,3 @@ class _DatePickerWidgetState extends State<DatePickerWidget> {
     );
   }
 }
-
-enum ReturnDateType { each, range }

@@ -1,0 +1,1 @@
+enum ReturnDateType { each, range }

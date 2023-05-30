@@ -1,14 +1,17 @@
+import 'package:carousel/pages/datepicker/date_picker.dart';
 import 'package:carousel/pages/datepicker/date_picker_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class DatePickerWidgetTemp extends StatefulWidget {
   const DatePickerWidgetTemp({
     this.returnDateType = ReturnDateType.each,
     this.initialDateList,
     this.initialDateRange,
-    this.selectedColor = Colors.blue,
-    this.rangeColor = Colors.amber,
+    this.selectedColor = const Color(0xFFFFD300),
+    this.rangeColor = const Color(0xFFEBEBEB),
     this.selectedFontColor = Colors.white,
+    this.darkMode = false,
     Key? key,
   }) : super(key: key);
 
@@ -18,6 +21,7 @@ class DatePickerWidgetTemp extends StatefulWidget {
   final Color selectedColor;
   final Color rangeColor;
   final Color selectedFontColor;
+  final bool darkMode;
 
   @override
   State<DatePickerWidgetTemp> createState() => _DatePickerWidgetState();
@@ -45,7 +49,7 @@ class _DatePickerWidgetState extends State<DatePickerWidgetTemp> {
     setState(() {});
   }
 
-  List<String> weekNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Tue', 'Fri', 'Sat'];
+  List<String> weekNames = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
   void viewCalender() {
     _calender.clear();
@@ -117,6 +121,7 @@ class _DatePickerWidgetState extends State<DatePickerWidgetTemp> {
         borderRadius: BorderRadius.all(
           Radius.circular(20),
         ),
+        color: widget.darkMode ? Color(0xFF2C2C2C) : Colors.white,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -134,15 +139,16 @@ class _DatePickerWidgetState extends State<DatePickerWidgetTemp> {
                   padding: EdgeInsets.all(10),
                   child: Icon(
                     Icons.arrow_back_ios,
+                    color: widget.darkMode ? Colors.white : Color(0xFF2C2C2C),
                   ),
                 ),
               ),
               Text(
                 _viewMonth.month < 10 ? '${_viewMonth.year}.0${_viewMonth.month}' : '${_viewMonth.year}.${_viewMonth.month}',
-                style: TextStyle(
+                style: GoogleFonts.robotoCondensed(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  fontStyle: FontStyle.italic,
+                  color: widget.darkMode ? Colors.white : Color(0xFF2C2C2C),
                 ),
               ),
               GestureDetector(
@@ -154,6 +160,7 @@ class _DatePickerWidgetState extends State<DatePickerWidgetTemp> {
                   padding: EdgeInsets.all(10),
                   child: Icon(
                     Icons.arrow_forward_ios,
+                    color: widget.darkMode ? Colors.white : Color(0xFF2C2C2C),
                   ),
                 ),
               ),
@@ -170,28 +177,20 @@ class _DatePickerWidgetState extends State<DatePickerWidgetTemp> {
                   child: Text(
                     weekNames[index],
                     textAlign: TextAlign.center,
-                    style: TextStyle(
+                    style: GoogleFonts.roboto(
                       fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      fontStyle: FontStyle.italic,
                       color: index == 0
                           ? Colors.red
                           : index == 6
                               ? Colors.blue
-                              : Colors.black,
+                              : widget.darkMode
+                                  ? Colors.white
+                                  : Color(0xFF2C2C2C),
                     ),
                   ),
                 ),
               ),
             ],
-          ),
-          SizedBox(
-            height: 12,
-          ),
-          Divider(
-            height: 0,
-            thickness: 1,
-            color: Colors.black12,
           ),
           SizedBox(
             height: 12,
@@ -249,10 +248,9 @@ class _DatePickerWidgetState extends State<DatePickerWidgetTemp> {
                                   child: Text(
                                     _calender[index1 * 7 + index2].day.toString(),
                                     textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      fontWeight: _selectedDateList.indexOf(_calender[index1 * 7 + index2]) != -1 ? FontWeight.bold : FontWeight.w500,
+                                    style: GoogleFonts.robotoCondensed(
+                                      fontWeight: FontWeight.w500,
                                       fontSize: 14,
-                                      fontStyle: FontStyle.italic,
                                       color: dayTextColor(_calender[index1 * 7 + index2]),
                                     ),
                                   ),
@@ -298,7 +296,7 @@ class _DatePickerWidgetState extends State<DatePickerWidgetTemp> {
                     ? Colors.blue
                     : date.weekday == 7
                         ? Colors.red
-                        : Colors.black
+                        : Color(0xFF2C2C2C)
         : (_selectRangeStart == date || _selectRangeEnd == date)
             ? widget.selectedFontColor
             : _selectRangeStart != null &&
@@ -311,6 +309,8 @@ class _DatePickerWidgetState extends State<DatePickerWidgetTemp> {
                         ? Colors.blue
                         : date.weekday == 7
                             ? Colors.red
-                            : Colors.black;
+                            : widget.darkMode
+                                ? Colors.white
+                                : Color(0xFF2C2C2C);
   }
 }
