@@ -1,5 +1,4 @@
 import 'package:carousel/pages/datepicker/date_picker.dart';
-import 'package:carousel/pages/datepicker/date_picker_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -8,9 +7,9 @@ class DatePickerWidgetTemp extends StatefulWidget {
     this.returnDateType = ReturnDateType.each,
     this.initialDateList,
     this.initialDateRange,
-    this.selectedColor = const Color(0xFFFFD300),
-    this.rangeColor = const Color(0xFFEBEBEB),
-    this.selectedFontColor = Colors.white,
+    this.selectedColor = Colors.blue,
+    this.rangeColor = Colors.grey,
+    this.selectedFontColor,
     this.darkMode = false,
     Key? key,
   }) : super(key: key);
@@ -20,7 +19,7 @@ class DatePickerWidgetTemp extends StatefulWidget {
   final DateTimeRange? initialDateRange;
   final Color selectedColor;
   final Color rangeColor;
-  final Color selectedFontColor;
+  final Color? selectedFontColor;
   final bool darkMode;
 
   @override
@@ -33,6 +32,7 @@ class _DatePickerWidgetState extends State<DatePickerWidgetTemp> {
   List<DateTime> _calender = [];
   DateTime? _selectRangeStart;
   DateTime? _selectRangeEnd;
+  late Color _selectedFontColor;
 
   late DateTime _viewMonth;
 
@@ -44,6 +44,7 @@ class _DatePickerWidgetState extends State<DatePickerWidgetTemp> {
     _selectRangeStart = widget.initialDateRange?.start ?? null;
     _selectRangeEnd = widget.initialDateRange?.end ?? null;
     _viewMonth = DateTime.now();
+    _selectedFontColor = widget.darkMode ? Color(0xFF2C2C2C) : Colors.white;
 
     viewCalender();
     setState(() {});
@@ -118,8 +119,9 @@ class _DatePickerWidgetState extends State<DatePickerWidgetTemp> {
         vertical: 30,
       ),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.all(
-          Radius.circular(20),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(20),
+          bottom: Radius.zero,
         ),
         color: widget.darkMode ? Color(0xFF2C2C2C) : Colors.white,
       ),
@@ -128,7 +130,7 @@ class _DatePickerWidgetState extends State<DatePickerWidgetTemp> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               GestureDetector(
                 onTap: () {
@@ -145,7 +147,7 @@ class _DatePickerWidgetState extends State<DatePickerWidgetTemp> {
               ),
               Text(
                 _viewMonth.month < 10 ? '${_viewMonth.year}.0${_viewMonth.month}' : '${_viewMonth.year}.${_viewMonth.month}',
-                style: GoogleFonts.robotoCondensed(
+                style: GoogleFonts.prompt(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                   color: widget.darkMode ? Colors.white : Color(0xFF2C2C2C),
@@ -177,7 +179,7 @@ class _DatePickerWidgetState extends State<DatePickerWidgetTemp> {
                   child: Text(
                     weekNames[index],
                     textAlign: TextAlign.center,
-                    style: GoogleFonts.roboto(
+                    style: GoogleFonts.prompt(
                       fontSize: 18,
                       color: index == 0
                           ? Colors.red
@@ -206,7 +208,7 @@ class _DatePickerWidgetState extends State<DatePickerWidgetTemp> {
                 ...List.generate(
                   6,
                   (index1) => Padding(
-                    padding: EdgeInsets.only(bottom: 4),
+                    padding: EdgeInsets.only(bottom: 12),
                     child: Row(
                       children: [
                         ...List.generate(
@@ -232,14 +234,40 @@ class _DatePickerWidgetState extends State<DatePickerWidgetTemp> {
                                       }
                                       setState(() {});
                                     },
-                              child: Padding(
-                                padding: EdgeInsets.symmetric(
-                                  vertical: 4,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: widget.returnDateType == ReturnDateType.range &&
+                                          _selectRangeStart != null &&
+                                          _selectRangeEnd != null &&
+                                          (_selectRangeStart!.isBefore(_calender[index1 * 7 + index2]) &&
+                                              _selectRangeEnd!.isAfter(_calender[index1 * 7 + index2]))
+                                      ? widget.rangeColor.withOpacity(.3)
+                                      : null,
+                                  gradient:
+                                      _selectRangeStart != null && _selectRangeEnd != null && _selectRangeStart == _calender[index1 * 7 + index2]
+                                          ? LinearGradient(
+                                              tileMode: TileMode.clamp,
+                                              colors: [
+                                                Colors.transparent,
+                                                widget.rangeColor.withOpacity(.3),
+                                              ],
+                                              stops: [.3, .5],
+                                            )
+                                          : _selectRangeStart != null && _selectRangeEnd != null && _selectRangeEnd == _calender[index1 * 7 + index2]
+                                              ? LinearGradient(
+                                                  tileMode: TileMode.clamp,
+                                                  colors: [
+                                                    widget.rangeColor.withOpacity(.3),
+                                                    Colors.transparent,
+                                                  ],
+                                                  stops: [.3, .5],
+                                                )
+                                              : null,
                                 ),
                                 child: Container(
                                   padding: EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 8,
+                                    horizontal: 10,
+                                    vertical: 10,
                                   ),
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
@@ -248,7 +276,7 @@ class _DatePickerWidgetState extends State<DatePickerWidgetTemp> {
                                   child: Text(
                                     _calender[index1 * 7 + index2].day.toString(),
                                     textAlign: TextAlign.center,
-                                    style: GoogleFonts.robotoCondensed(
+                                    style: GoogleFonts.prompt(
                                       fontWeight: FontWeight.w500,
                                       fontSize: 14,
                                       color: dayTextColor(_calender[index1 * 7 + index2]),
@@ -262,6 +290,14 @@ class _DatePickerWidgetState extends State<DatePickerWidgetTemp> {
                       ],
                     ),
                   ),
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(),
+                  onPressed: () {},
+                  child: Text('select'),
                 ),
               ],
             ),
@@ -278,9 +314,7 @@ class _DatePickerWidgetState extends State<DatePickerWidgetTemp> {
             : Colors.transparent
         : _selectRangeStart == date || _selectRangeEnd == date
             ? widget.selectedColor
-            : _selectRangeStart != null && _selectRangeEnd != null && date.isAfter(_selectRangeStart!) && date.isBefore(_selectRangeEnd!)
-                ? widget.rangeColor
-                : Colors.transparent;
+            : Colors.transparent;
   }
 
   Color dayTextColor(DateTime date) {
@@ -289,28 +323,26 @@ class _DatePickerWidgetState extends State<DatePickerWidgetTemp> {
                   date,
                 ) !=
                 -1
-            ? widget.selectedFontColor
+            ? _selectedFontColor
             : date.month != _viewMonth.month
                 ? Colors.grey
                 : date.weekday == 6
                     ? Colors.blue
                     : date.weekday == 7
                         ? Colors.red
-                        : Color(0xFF2C2C2C)
+                        : widget.darkMode
+                            ? Colors.white
+                            : Color(0xFF2C2C2C)
         : (_selectRangeStart == date || _selectRangeEnd == date)
-            ? widget.selectedFontColor
-            : _selectRangeStart != null &&
-                    _selectRangeEnd != null &&
-                    (_selectRangeStart!.subtract(Duration(days: 1)).isBefore(date) && _selectRangeEnd!.add(Duration(days: 1)).isAfter(date))
-                ? widget.selectedFontColor
-                : date.month != _viewMonth.month
-                    ? Colors.grey
-                    : date.weekday == 6
-                        ? Colors.blue
-                        : date.weekday == 7
-                            ? Colors.red
-                            : widget.darkMode
-                                ? Colors.white
-                                : Color(0xFF2C2C2C);
+            ? _selectedFontColor
+            : date.month != _viewMonth.month
+                ? Colors.grey
+                : date.weekday == 6
+                    ? Colors.blue
+                    : date.weekday == 7
+                        ? Colors.red
+                        : widget.darkMode
+                            ? Colors.white
+                            : Color(0xFF2C2C2C);
   }
 }

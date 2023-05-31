@@ -25,24 +25,29 @@ class _DatePickerPageState extends State<DatePickerPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            ElevatedButton(
-                onPressed: () {
-                  showDialog(
+            Builder(builder: (ctx) {
+              return ElevatedButton(
+                onPressed: () async {
+                  var result = await showModalBottomSheet(
+                    isScrollControlled: true,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(20),
+                        bottom: Radius.zero,
+                      ),
+                    ),
                     context: context,
-                    builder: (context) => Dialog(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(20),
-                        ),
-                      ),
-                      child: DatePickerWidgetTemp(
-                        returnDateType: ReturnDateType.range,
-                        darkMode: true,
-                      ),
+                    builder: (context) => DatePickerWidgetTemp(
+                      returnDateType: ReturnDateType.each,
+                      initialDateList: [DateTime.now()],
+                      darkMode: false,
+                      rangeColor: Colors.grey,
                     ),
                   );
                 },
-                child: Text('click me')),
+                child: Text('click me'),
+              );
+            }),
           ],
         ),
       ),
