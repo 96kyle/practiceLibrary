@@ -1,16 +1,19 @@
 import 'package:carousel/pages/datepicker/date_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class DatePickerWidgetTemp extends StatefulWidget {
   const DatePickerWidgetTemp({
     this.returnDateType = ReturnDateType.each,
     this.initialDateList,
     this.initialDateRange,
-    this.selectedColor = Colors.blue,
+    this.selectedColor = const Color(0xff3581FF),
     this.rangeColor = Colors.grey,
     this.selectedFontColor,
-    this.darkMode = false,
+    this.contrastMode = ContrastMode.white,
+    this.dialogMode = DialogMode.dialog,
+    this.buttonColor = const Color(0xff3581FF),
+    this.buttonText = 'OK',
+    this.buttonTextColor = Colors.white,
     Key? key,
   }) : super(key: key);
 
@@ -20,7 +23,11 @@ class DatePickerWidgetTemp extends StatefulWidget {
   final Color selectedColor;
   final Color rangeColor;
   final Color? selectedFontColor;
-  final bool darkMode;
+  final ContrastMode contrastMode;
+  final DialogMode dialogMode;
+  final Color buttonColor;
+  final String buttonText;
+  final Color buttonTextColor;
 
   @override
   State<DatePickerWidgetTemp> createState() => _DatePickerWidgetState();
@@ -40,11 +47,15 @@ class _DatePickerWidgetState extends State<DatePickerWidgetTemp> {
   void initState() {
     super.initState();
 
-    _selectedDateList = widget.initialDateList ?? [];
-    _selectRangeStart = widget.initialDateRange?.start ?? null;
-    _selectRangeEnd = widget.initialDateRange?.end ?? null;
+    if (widget.returnDateType == ReturnDateType.each) {
+      _selectedDateList = widget.initialDateList ?? [];
+    } else {
+      _selectRangeStart = widget.initialDateRange?.start ?? null;
+      _selectRangeEnd = widget.initialDateRange?.end ?? null;
+    }
+
     _viewMonth = DateTime.now();
-    _selectedFontColor = widget.darkMode ? Color(0xFF2C2C2C) : Colors.white;
+    _selectedFontColor = widget.contrastMode == ContrastMode.dark ? Color(0xFF2C2C2C) : Colors.white;
 
     viewCalender();
     setState(() {});
@@ -80,7 +91,7 @@ class _DatePickerWidgetState extends State<DatePickerWidgetTemp> {
     if (_selectedDateList.indexOf(date) == -1) {
       _selectedDateList.add(date);
     } else {
-      _selectedDateList.remove(date);
+      _selectedDateList.removeWhere((e) => e.year == date.year && e.month == date.month && e.day == date.day);
     }
   }
 
@@ -115,15 +126,15 @@ class _DatePickerWidgetState extends State<DatePickerWidgetTemp> {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: 12,
         vertical: 30,
+        horizontal: 12,
       ),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(20),
-          bottom: Radius.zero,
+          bottom: widget.dialogMode == DialogMode.dialog ? Radius.circular(20) : Radius.zero,
         ),
-        color: widget.darkMode ? Color(0xFF2C2C2C) : Colors.white,
+        color: widget.contrastMode == ContrastMode.dark ? Color(0xFF2C2C2C) : Colors.white,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -141,16 +152,16 @@ class _DatePickerWidgetState extends State<DatePickerWidgetTemp> {
                   padding: EdgeInsets.all(10),
                   child: Icon(
                     Icons.arrow_back_ios,
-                    color: widget.darkMode ? Colors.white : Color(0xFF2C2C2C),
+                    color: widget.contrastMode == ContrastMode.dark ? Colors.white : Color(0xFF2C2C2C),
                   ),
                 ),
               ),
               Text(
                 _viewMonth.month < 10 ? '${_viewMonth.year}.0${_viewMonth.month}' : '${_viewMonth.year}.${_viewMonth.month}',
-                style: GoogleFonts.prompt(
+                style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: widget.darkMode ? Colors.white : Color(0xFF2C2C2C),
+                  color: widget.contrastMode == ContrastMode.dark ? Colors.white : Color(0xFF2C2C2C),
                 ),
               ),
               GestureDetector(
@@ -162,7 +173,7 @@ class _DatePickerWidgetState extends State<DatePickerWidgetTemp> {
                   padding: EdgeInsets.all(10),
                   child: Icon(
                     Icons.arrow_forward_ios,
-                    color: widget.darkMode ? Colors.white : Color(0xFF2C2C2C),
+                    color: widget.contrastMode == ContrastMode.dark ? Colors.white : Color(0xFF2C2C2C),
                   ),
                 ),
               ),
@@ -179,13 +190,13 @@ class _DatePickerWidgetState extends State<DatePickerWidgetTemp> {
                   child: Text(
                     weekNames[index],
                     textAlign: TextAlign.center,
-                    style: GoogleFonts.prompt(
+                    style: TextStyle(
                       fontSize: 18,
                       color: index == 0
                           ? Colors.red
                           : index == 6
                               ? Colors.blue
-                              : widget.darkMode
+                              : widget.contrastMode == ContrastMode.dark
                                   ? Colors.white
                                   : Color(0xFF2C2C2C),
                     ),
@@ -197,132 +208,132 @@ class _DatePickerWidgetState extends State<DatePickerWidgetTemp> {
           SizedBox(
             height: 12,
           ),
-          GestureDetector(
-            onHorizontalDragStart: (details) {
-              goFrontMonth();
-              setState(() {});
-            },
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                ...List.generate(
-                  6,
-                  (index1) => Padding(
-                    padding: EdgeInsets.only(bottom: 12),
-                    child: Row(
-                      children: [
-                        ...List.generate(
-                          7,
-                          (index2) => Expanded(
-                            child: GestureDetector(
-                              onTap: _calender[index1 * 7 + index2].month != _viewMonth.month
-                                  ? () {
-                                      _viewMonth = DateTime(_calender[index1 * 7 + index2].year, _calender[index1 * 7 + index2].month);
-                                      if (widget.returnDateType == ReturnDateType.each) {
-                                        selectDate(_calender[index1 * 7 + index2]);
-                                      } else {
-                                        selectDateRange(_calender[index1 * 7 + index2]);
-                                      }
-                                      viewCalender();
-                                      setState(() {});
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              ...List.generate(
+                6,
+                (index1) => Padding(
+                  padding: EdgeInsets.only(bottom: 12),
+                  child: Row(
+                    children: [
+                      ...List.generate(
+                        7,
+                        (index2) => Expanded(
+                          child: GestureDetector(
+                            onTap: _calender[index1 * 7 + index2].month != _viewMonth.month
+                                ? () {
+                                    _viewMonth = DateTime(_calender[index1 * 7 + index2].year, _calender[index1 * 7 + index2].month);
+                                    if (widget.returnDateType == ReturnDateType.each) {
+                                      selectDate(_calender[index1 * 7 + index2]);
+                                    } else {
+                                      selectDateRange(_calender[index1 * 7 + index2]);
                                     }
-                                  : () {
-                                      if (widget.returnDateType == ReturnDateType.each) {
-                                        selectDate(_calender[index1 * 7 + index2]);
-                                      } else {
-                                        selectDateRange(_calender[index1 * 7 + index2]);
-                                      }
-                                      setState(() {});
-                                    },
+                                    viewCalender();
+                                    setState(() {});
+                                  }
+                                : () {
+                                    if (widget.returnDateType == ReturnDateType.each) {
+                                      selectDate(_calender[index1 * 7 + index2]);
+                                    } else {
+                                      selectDateRange(_calender[index1 * 7 + index2]);
+                                    }
+                                    setState(() {});
+                                  },
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: widget.returnDateType == ReturnDateType.range &&
+                                        _selectRangeStart != null &&
+                                        _selectRangeEnd != null &&
+                                        (_selectRangeStart!.isBefore(_calender[index1 * 7 + index2]) &&
+                                            _selectRangeEnd!.isAfter(
+                                              _calender[index1 * 7 + index2].add(Duration(hours: 23, minutes: 59, seconds: 59)),
+                                            ))
+                                    ? widget.rangeColor
+                                    : null,
+                                gradient: _rangeGradient(_calender[index1 * 7 + index2]),
+                              ),
                               child: Container(
-                                decoration: BoxDecoration(
-                                  color: widget.returnDateType == ReturnDateType.range &&
-                                          _selectRangeStart != null &&
-                                          _selectRangeEnd != null &&
-                                          (_selectRangeStart!.isBefore(_calender[index1 * 7 + index2]) &&
-                                              _selectRangeEnd!.isAfter(_calender[index1 * 7 + index2]))
-                                      ? widget.rangeColor.withOpacity(.3)
-                                      : null,
-                                  gradient:
-                                      _selectRangeStart != null && _selectRangeEnd != null && _selectRangeStart == _calender[index1 * 7 + index2]
-                                          ? LinearGradient(
-                                              tileMode: TileMode.clamp,
-                                              colors: [
-                                                Colors.transparent,
-                                                widget.rangeColor.withOpacity(.3),
-                                              ],
-                                              stops: [.3, .5],
-                                            )
-                                          : _selectRangeStart != null && _selectRangeEnd != null && _selectRangeEnd == _calender[index1 * 7 + index2]
-                                              ? LinearGradient(
-                                                  tileMode: TileMode.clamp,
-                                                  colors: [
-                                                    widget.rangeColor.withOpacity(.3),
-                                                    Colors.transparent,
-                                                  ],
-                                                  stops: [.3, .5],
-                                                )
-                                              : null,
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 10,
                                 ),
-                                child: Container(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: 10,
-                                    vertical: 10,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: dayBoxColor(_calender[index1 * 7 + index2]),
-                                  ),
-                                  child: Text(
-                                    _calender[index1 * 7 + index2].day.toString(),
-                                    textAlign: TextAlign.center,
-                                    style: GoogleFonts.prompt(
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 14,
-                                      color: dayTextColor(_calender[index1 * 7 + index2]),
-                                    ),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: _dayBoxColor(_calender[index1 * 7 + index2]),
+                                ),
+                                child: Text(
+                                  _calender[index1 * 7 + index2].day.toString(),
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 12,
+                                    color: dayTextColor(_calender[index1 * 7 + index2]),
                                   ),
                                 ),
                               ),
                             ),
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
-                SizedBox(
-                  height: 20,
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.zero,
+                  fixedSize: Size.fromHeight(48),
+                  backgroundColor: widget.buttonColor,
                 ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(),
-                  onPressed: () {},
-                  child: Text('select'),
+                onPressed: () {
+                  if (widget.returnDateType == ReturnDateType.each) {
+                    if (_selectedDateList.isEmpty) {
+                      Navigator.of(context).pop();
+                    } else {
+                      Navigator.of(context).pop(_selectedDateList);
+                    }
+                  } else {
+                    if (_selectRangeStart == null || _selectRangeEnd == null) {
+                      Navigator.of(context).pop();
+                    } else {
+                      Navigator.of(context).pop(DateTimeRange(start: _selectRangeStart!, end: _selectRangeEnd!));
+                    }
+                  }
+                },
+                child: Text(
+                  widget.buttonText,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
+                    color: widget.buttonTextColor,
+                  ),
                 ),
-              ],
-            ),
+              ),
+            ],
           )
         ],
       ),
     );
   }
 
-  Color dayBoxColor(DateTime date) {
+  Color _dayBoxColor(DateTime date) {
     return widget.returnDateType == ReturnDateType.each
-        ? _selectedDateList.indexOf(date) != -1
+        ? _selectedDateList.indexWhere((e) => e.year == date.year && e.month == date.month && e.day == date.day) != -1
             ? widget.selectedColor
             : Colors.transparent
-        : _selectRangeStart == date || _selectRangeEnd == date
+        : ((_selectRangeStart?.year == date.year && _selectRangeStart?.month == date.month && _selectRangeStart?.day == date.day) ||
+                (_selectRangeEnd?.year == date.year && _selectRangeEnd?.month == date.month && _selectRangeEnd?.day == date.day))
             ? widget.selectedColor
             : Colors.transparent;
   }
 
   Color dayTextColor(DateTime date) {
     return widget.returnDateType == ReturnDateType.each
-        ? _selectedDateList.indexOf(
-                  date,
-                ) !=
-                -1
+        ? _selectedDateList.indexWhere((e) => e.year == date.year && e.month == date.month && e.day == date.day) != -1
             ? _selectedFontColor
             : date.month != _viewMonth.month
                 ? Colors.grey
@@ -330,10 +341,11 @@ class _DatePickerWidgetState extends State<DatePickerWidgetTemp> {
                     ? Colors.blue
                     : date.weekday == 7
                         ? Colors.red
-                        : widget.darkMode
+                        : widget.contrastMode == ContrastMode.dark
                             ? Colors.white
                             : Color(0xFF2C2C2C)
-        : (_selectRangeStart == date || _selectRangeEnd == date)
+        : ((_selectRangeStart?.year == date.year && _selectRangeStart?.month == date.month && _selectRangeStart?.day == date.day) ||
+                (_selectRangeEnd?.year == date.year && _selectRangeEnd?.month == date.month && _selectRangeEnd?.day == date.day))
             ? _selectedFontColor
             : date.month != _viewMonth.month
                 ? Colors.grey
@@ -341,8 +353,35 @@ class _DatePickerWidgetState extends State<DatePickerWidgetTemp> {
                     ? Colors.blue
                     : date.weekday == 7
                         ? Colors.red
-                        : widget.darkMode
+                        : widget.contrastMode == ContrastMode.dark
                             ? Colors.white
                             : Color(0xFF2C2C2C);
+  }
+
+  LinearGradient? _rangeGradient(DateTime date) {
+    if (_selectRangeStart != null && _selectRangeEnd != null) {
+      if (_selectRangeStart?.year == date.year && _selectRangeStart?.month == date.month && _selectRangeStart?.day == date.day) {
+        return LinearGradient(
+          tileMode: TileMode.clamp,
+          colors: [
+            Colors.transparent,
+            widget.rangeColor,
+          ],
+          stops: [.4, .5],
+        );
+      } else if (_selectRangeEnd?.year == date.year && _selectRangeEnd?.month == date.month && _selectRangeEnd?.day == date.day) {
+        return LinearGradient(
+          tileMode: TileMode.clamp,
+          colors: [
+            widget.rangeColor,
+            Colors.transparent,
+          ],
+          stops: [.4, .5],
+        );
+      }
+    } else {
+      return null;
+    }
+    return null;
   }
 }
