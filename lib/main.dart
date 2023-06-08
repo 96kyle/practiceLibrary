@@ -1,4 +1,4 @@
-import 'package:carousel/pages/datepicker/date_picker_page.dart';
+import 'package:carousel/pages/flip_card_page.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -11,8 +11,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: DatePickerPage(),
-      theme: ThemeData(fontFamily: 'Prompt'),
+      home: FlipCardPage(),
     );
   }
 }
