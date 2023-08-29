@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 
 Widget bubbleWidget({
   required String comment,
-  bool xMark = true,
   Color color = Colors.grey,
-  void Function()? onTap,
 }) =>
     ClipPath(
       child: Container(

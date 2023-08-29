@@ -22,6 +22,7 @@ dependencies:
   smooth_page_indicator: ^1.1.0
   google_fonts: ^4.0.4
   custom_calender_picker: ^0.1.1
+  drag_and_drop_lists: ^0.3.3
 
 dev_dependencies:
   flutter_test:
